@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { getProperties, getCities } from '@/lib/api/properties';
 import { getStrapiMedia } from '@/lib/api/client';
@@ -8,7 +8,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Property } from '@/lib/types';
 
-export default function PropertiesPage() {
+function PropertiesContent() {
   const searchParams = useSearchParams();
   const [properties, setProperties] = useState<Property[]>([]);
   const [cities, setCities] = useState<string[]>([]);
@@ -210,5 +210,19 @@ export default function PropertiesPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function PropertiesPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-xl">Yükleniyor...</div>
+        </div>
+      </div>
+    }>
+      <PropertiesContent />
+    </Suspense>
   );
 }
