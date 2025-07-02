@@ -1,3 +1,4 @@
+//frontend/app/proerties/page.tsx
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';

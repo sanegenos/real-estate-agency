@@ -1,3 +1,5 @@
+//frontend/app/proerties/[slug]/page.tsx
+
 import { getPropertyBySlug, getRelatedProperties } from '@/lib/api/properties';
 import { getStrapiMedia } from '@/lib/api/client';
 import Image from 'next/image';

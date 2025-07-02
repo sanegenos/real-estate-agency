@@ -32,7 +32,7 @@
         }
       }
     },
-    "feature": {
+    "properties": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::property.property",

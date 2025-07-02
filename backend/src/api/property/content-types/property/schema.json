@@ -248,9 +248,9 @@
     },
     "features": {
       "type": "relation",
-      "relation": "manyToOne",
+      "relation": "manyToMany",
       "target": "api::feature.feature",
-      "inversedBy": "feature"
+      "inversedBy": "properties"
     },
     "seo": {
       "type": "component",

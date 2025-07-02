@@ -1,3 +1,4 @@
+//frontend/app/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -95,7 +96,7 @@ export default function Home() {
         {/* Content */}
 
         <div className="relative z-100 flex justify-center">
-          <div className="container px-4 py-4 text-center transform translate-y-[70%]">
+          <div className="container px-4 py-4 text-center transform md:translate-y-[70%]">
             <h1 className="text-5xl md:text-3xl font-bold text-white mb-4 animate-fade-in">
               Silpagar Grup'a Hoşgeldiniz!
             </h1>

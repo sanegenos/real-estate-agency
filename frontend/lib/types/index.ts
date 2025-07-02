@@ -1,4 +1,4 @@
-// lib/types/index.ts
+// frontend/lib/types/index.ts
 
 // Common types
 export interface Image {
@@ -30,7 +30,7 @@ export interface SEO {
   canonicalURL?: string;
 }
 
-// Property types
+// Property types для Strapi v5
 export interface Property {
   id: number;
   documentId: string;
@@ -65,7 +65,7 @@ export interface Property {
   updatedAt: string;
   publishedAt: string;
   
-  // Media
+  // Media - в Strapi v5 это уже не в attributes
   gallery?: Image[];
   coverImage?: Image;
   youtubeVideoUrl?: string;
@@ -74,7 +74,7 @@ export interface Property {
   installmentPlan?: string;
   propertyCode?: string;
   
-  // Relations
+  // Relations - в Strapi v5 это объекты, а не массивы
   agent?: Agent;
   features?: Feature[];
   
@@ -89,11 +89,15 @@ export type PropertyStatus = 'ready' | 'under-construction';
 
 export interface Feature {
   id: number;
+  documentId: string;
   name: string;
   icon?: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
 }
 
-// Agent types
+// Agent types для Strapi v5
 export interface Agent {
   id: number;
   documentId: string;
@@ -116,7 +120,7 @@ export interface Agent {
   publishedAt: string;
 }
 
-// API types
+// API types для Strapi v5
 export interface StrapiResponse<T> {
   data: T;
   meta?: {
