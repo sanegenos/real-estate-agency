@@ -19,15 +19,18 @@ export function buildStrapiUrl(path: string, params?: Record<string, any>) {
   return `${strapiUrl}/api${path}${queryString ? `?${queryString}` : ''}`;
 }
 
-// Функция для получения URL медиафайлов
+// Улучшенная функция для получения URL медиафайлов
 export function getStrapiMedia(url: string | null | undefined): string | null {
   if (!url) return null;
   
   // Если URL уже полный, возвращаем как есть
   if (url.startsWith('http')) return url;
   
-  // Иначе добавляем базовый URL Strapi
-  return `${strapiUrl}${url}`;
+  // Убираем начальный слеш если есть
+  const cleanUrl = url.startsWith('/') ? url.slice(1) : url;
+  
+  // Добавляем базовый URL Strapi
+  return `${strapiUrl}/${cleanUrl}`;
 }
 
 // Типизированная функция для запросов

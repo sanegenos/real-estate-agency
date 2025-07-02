@@ -12,7 +12,14 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'real-estate-agency-pcuk.onrender.com',
+        pathname: '/uploads/**',
+      },
     ],
+    // Отключаем оптимизацию для внешних изображений (опционально)
+    unoptimized: process.env.NODE_ENV === 'production',
   },
   // Включаем поддержку SVG как компонентов
   webpack(config) {
@@ -23,5 +30,3 @@ const nextConfig = {
     return config;
   },
 }
-
-module.exports = nextConfig
