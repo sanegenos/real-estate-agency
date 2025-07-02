@@ -4,14 +4,6 @@ import path from 'path';
 export default ({ env }) => {
   const client = env('DATABASE_CLIENT', 'sqlite');
 
-  if (client === 'postgres') {
-    console.log('🐘 PostgreSQL configuration:');
-    console.log('- CLIENT:', client);
-    console.log('- HOST:', env('DATABASE_HOST', 'from DATABASE_URL'));
-    console.log('- SSL:', env.bool('DATABASE_SSL', false));
-    console.log('- URL provided:', !!env('DATABASE_URL'));
-  }
-
   const connections = {
     mysql: {
       connection: {
@@ -26,7 +18,6 @@ export default ({ env }) => {
       },
       pool: { min: env.int('DATABASE_POOL_MIN', 2), max: env.int('DATABASE_POOL_MAX', 10) },
     },
-    
     postgres: {
       connection: {
         connectionString: env('DATABASE_URL'),
