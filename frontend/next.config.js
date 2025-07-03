@@ -14,7 +14,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'real-estate-agency-pcuk.onrender.com',
+        hostname: '*.onrender.com',
         pathname: '/uploads/**',
       },
     ],
