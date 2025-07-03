@@ -35,10 +35,24 @@ export default function Home() {
           getCities()
         ]);
 
-        setProperties(propertiesResponse.data);
-        setCities(citiesData);
+        // Проверяем структуру данных и устанавливаем безопасные значения
+        if (propertiesResponse?.data && Array.isArray(propertiesResponse.data)) {
+          setProperties(propertiesResponse.data);
+        } else {
+          console.warn('Invalid properties response:', propertiesResponse);
+          setProperties([]);
+        }
+
+        if (Array.isArray(citiesData)) {
+          setCities(citiesData);
+        } else {
+          console.warn('Invalid cities response:', citiesData);
+          setCities([]);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
+        setProperties([]);
+        setCities([]);
       } finally {
         setLoading(false);
       }
@@ -77,6 +91,66 @@ export default function Home() {
     window.location.href = `/properties?${params.toString()}`;
   };
 
+  // Безопасный рендер карточки недвижимости
+  const renderPropertyCard = (property: Property) => {
+    const imageUrl = getStrapiMedia(property.coverImage?.url);
+    const title = property.title || 'Без названия';
+    const city = property.city || 'Город не указан';
+    const country = property.country || 'Страна не указана';
+    const bedrooms = Number(property.bedrooms) || 0;
+    const bathrooms = Number(property.bathrooms) || 0;
+    const area = Number(property.area) || 0;
+    const price = Number(property.price) || 0;
+    const currency = property.currency || 'USD';
+    const listingType = property.listingType === 'sale' ? 'Satılık' : 'Kiralık';
+
+    return (
+      <Link
+        key={property.id}
+        href={`/properties/${property.slug || property.id}`}
+        className="block group"
+      >
+        <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+          <div className="h-48 bg-gray-300 relative overflow-hidden">
+            {imageUrl && (
+              <Image
+                src={imageUrl}
+                alt={title}
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-300"
+                unoptimized={imageUrl.includes('onrender.com')}
+              />
+            )}
+            <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded">
+              {listingType}
+            </div>
+          </div>
+          <div className="p-6">
+            <h3 className="text-xl font-semibold mb-2">
+              {title}
+            </h3>
+            <p className="text-gray-600 mb-4">
+              {city}, {country}
+            </p>
+            <div className="flex items-center text-sm text-gray-500 mb-4">
+              <span className="mr-4">🛏 {bedrooms} yatak</span>
+              <span className="mr-4">🚿 {bathrooms} banyo</span>
+              <span>📐 {area} m²</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-2xl font-bold text-blue-600">
+                {currency} {price.toLocaleString()}
+              </span>
+              <span className="text-blue-600 hover:text-blue-700 group-hover:translate-x-1 transition-transform">
+                Detayları Gör →
+              </span>
+            </div>
+          </div>
+        </div>
+      </Link>
+    );
+  };
+
   return (
     <>
       {/* Hero Section with Search */}
@@ -94,7 +168,6 @@ export default function Home() {
         </div>
 
         {/* Content */}
-
         <div className="relative z-100 flex justify-center">
           <div className="container px-4 py-4 text-center transform md:translate-y-[70%]">
             <h1 className="text-5xl md:text-3xl font-bold text-white mb-4 animate-fade-in">
@@ -189,20 +262,6 @@ export default function Home() {
                   </select>
                 </div>
 
-                {/* Bölge */}
-                {/* <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  BÖLGE
-                </label>
-                <select
-                  value={searchForm.district}
-                  onChange={(e) => setSearchForm({...searchForm, district: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                >
-                  <option value="">Tümü</option>
-                </select>
-              </div> */}
-
                 {/* Oda Sayısı */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -221,20 +280,6 @@ export default function Home() {
                     <option value="5">5+1</option>
                   </select>
                 </div>
-
-                {/* Fiyat Aralığı */}
-                {/* <div className="md:col-span-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  FİYAT ARALIĞI
-                </label>
-                <input
-                  type="text"
-                  value={searchForm.priceRange}
-                  onChange={(e) => setSearchForm({...searchForm, priceRange: e.target.value})}
-                  placeholder="Herhangi biri"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                />
-              </div> */}
 
                 {/* Search Button */}
                 <div>
@@ -260,64 +305,23 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-center mb-12">
             Öne Çıkan Projeler
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {properties.map((property) => {
-              const imageUrl = getStrapiMedia(
-                property.coverImage?.url
-              );
+          
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="text-xl">Projeler yükleniyor...</div>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {properties.map(renderPropertyCard)}
+              </div>
 
-              return (
-                <Link
-                  key={property.id}
-                  href={`/properties/${property.slug}`}
-                  className="block group"
-                >
-                  <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-                    <div className="h-48 bg-gray-300 relative overflow-hidden">
-                      {imageUrl && (
-                        <Image
-                          src={imageUrl}
-                          alt={property.title}
-                          fill
-                          
-                          className="object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                      )}
-                      <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded">
-                        {property.listingType === 'sale' ? 'Satılık' : 'Kiralık'}
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-semibold mb-2">
-                        {property.title}
-                      </h3>
-                      <p className="text-gray-600 mb-4">
-                        {property.city}, {property.country}
-                      </p>
-                      <div className="flex items-center text-sm text-gray-500 mb-4">
-                        <span className="mr-4">🛏 {property.bedrooms} yatak</span>
-                        <span className="mr-4">🚿 {property.bathrooms} banyo</span>
-                        <span>📐 {property.area} m²</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-2xl font-bold text-blue-600">
-                          {property.currency} {property.price.toLocaleString()}
-                        </span>
-                        <span className="text-blue-600 hover:text-blue-700 group-hover:translate-x-1 transition-transform">
-                          Detayları Gör →
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-
-          {properties.length === 0 && (
-            <p className="text-center text-gray-500">
-              Henüz proje eklenmemiş. Lütfen Strapi admin panelinden proje ekleyin.
-            </p>
+              {properties.length === 0 && (
+                <p className="text-center text-gray-500">
+                  Henüz proje eklenmemiş. Lütfen Strapi admin panelinden proje ekleyin.
+                </p>
+              )}
+            </>
           )}
         </div>
       </section>
@@ -340,6 +344,28 @@ export default function Home() {
           to {
             opacity: 1;
             transform: translateY(0);
+          }
+        }
+
+        .animate-fade-in {
+          animation: fade-in 0.8s ease-out forwards;
+        }
+
+        .animate-slide-up {
+          animation: slide-up 0.8s ease-out forwards;
+        }
+
+        .animation-delay-200 {
+          animation-delay: 200ms;
+        }
+
+        .animation-delay-400 {
+          animation-delay: 400ms;
+        }
+      `}</style>
+    </>
+  );
+});
           }
         }
 

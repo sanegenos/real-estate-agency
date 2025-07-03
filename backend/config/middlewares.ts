@@ -5,7 +5,14 @@ module.exports = [
   {
     name: 'strapi::cors',
     config: {
-      origin: ['https://real-estate-agency-six.vercel.app', 'http://localhost:3000'],
+      origin: [
+        'http://localhost:3000', // локальная разработка
+        'https://real-estate-agency-six.vercel.app', // ваш Vercel домен
+        'https://*.vercel.app', // все поддомены Vercel (для preview deployments)
+      ],
+      credentials: true,
+      headers: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
     },
   },
   'strapi::poweredBy',

@@ -92,21 +92,43 @@ export async function getPropertyBySlug(slug: string) {
     },
   };
 
-  const response = await fetchAPI<StrapiResponse<Property[]>>('/properties', queryParams);
-  
-  if (!response.data || response.data.length === 0) {
+  try {
+    const response = await fetchAPI<StrapiResponse<Property[]>>('/properties', queryParams);
+    
+    if (!response.data || response.data.length === 0) {
+      return null;
+    }
+    
+    // Проверяем и форматируем features
+    const property = response.data[0];
+    
+    // Обрабатываем features для Strapi v5
+    if (property.features && typeof property.features === 'object' && 'data' in property.features) {
+      property.features = (property.features as any).data as Feature[];
+    }
+
+    // Проверяем и форматируем все необходимые поля
+    const safeProperty = {
+      ...property,
+      bedrooms: property.bedrooms || 0,
+      bathrooms: property.bathrooms || 0,
+      area: property.area || 0,
+      price: property.price || 0,
+      type: property.type || 'apartment',
+      listingType: property.listingType || 'sale',
+      currency: property.currency || 'USD',
+      city: property.city || '',
+      country: property.country || '',
+      address: property.address || '',
+      title: property.title || '',
+      description: property.description || '',
+    };
+    
+    return safeProperty;
+  } catch (error) {
+    console.error('Error fetching property by slug:', error);
     return null;
   }
-  
-  // Проверяем и форматируем features
-  const property = response.data[0];
-  
-  // Обрабатываем features для Strapi v5
-  if (property.features && typeof property.features === 'object' && 'data' in property.features) {
-    property.features = (property.features as any).data as Feature[];
-  }
-  
-  return property;
 }
 
 // Получить похожие объекты
@@ -131,7 +153,12 @@ export async function getRelatedProperties(
     },
   };
 
-  return await fetchAPI<StrapiResponse<Property[]>>('/properties', queryParams);
+  try {
+    return await fetchAPI<StrapiResponse<Property[]>>('/properties', queryParams);
+  } catch (error) {
+    console.error('Error fetching related properties:', error);
+    return { data: [], meta: {} };
+  }
 }
 
 // Получить избранные объекты для главной страницы
@@ -144,7 +171,12 @@ export async function getFeaturedProperties(limit: number = 6) {
     },
   };
 
-  return await fetchAPI<StrapiResponse<Property[]>>('/properties', queryParams);
+  try {
+    return await fetchAPI<StrapiResponse<Property[]>>('/properties', queryParams);
+  } catch (error) {
+    console.error('Error fetching featured properties:', error);
+    return { data: [], meta: {} };
+  }
 }
 
 // Получить список городов для фильтра
