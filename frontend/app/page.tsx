@@ -15,6 +15,7 @@ export default function Home() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Form state
   const [activeTab, setActiveTab] = useState<'all' | 'sale' | 'rent'>('all');
@@ -30,27 +31,52 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
+        setLoading(true);
+        setError(null);
+        
+        console.log('Fetching data...');
+        
         const [propertiesResponse, citiesData] = await Promise.all([
           getFeaturedProperties(3),
           getCities()
         ]);
 
-        // Проверяем структуру данных и устанавливаем безопасные значения
-        if (propertiesResponse?.data && Array.isArray(propertiesResponse.data)) {
-          setProperties(propertiesResponse.data);
+        console.log('Properties response:', propertiesResponse);
+        console.log('Cities data:', citiesData);
+
+        // Очень строгая проверка данных
+        if (propertiesResponse && 
+            typeof propertiesResponse === 'object' && 
+            propertiesResponse.data && 
+            Array.isArray(propertiesResponse.data)) {
+          
+          // Фильтруем только валидные объекты
+          const validProperties = propertiesResponse.data.filter(property => {
+            return property && 
+                   typeof property === 'object' && 
+                   typeof property.id === 'number' &&
+                   typeof property.title === 'string';
+          });
+          
+          console.log('Valid properties:', validProperties);
+          setProperties(validProperties);
         } else {
-          console.warn('Invalid properties response:', propertiesResponse);
+          console.warn('Invalid properties response structure:', propertiesResponse);
           setProperties([]);
         }
 
         if (Array.isArray(citiesData)) {
-          setCities(citiesData);
+          // Фильтруем только строки
+          const validCities = citiesData.filter(city => typeof city === 'string');
+          console.log('Valid cities:', validCities);
+          setCities(validCities);
         } else {
           console.warn('Invalid cities response:', citiesData);
           setCities([]);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
+        setError(error instanceof Error ? error.message : 'Unknown error');
         setProperties([]);
         setCities([]);
       } finally {
@@ -61,108 +87,90 @@ export default function Home() {
     fetchData();
   }, []);
 
-  // Parallax effect for hero section
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrolled = window.scrollY;
-      const heroImage = document.querySelector('.hero-parallax');
-      if (heroImage && scrolled < 800) {
-        (heroImage as HTMLElement).style.transform = `translateY(${scrolled * 0.5}px)`;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Redirect to properties page with search params
     const params = new URLSearchParams();
     if (searchForm.type) params.set('type', searchForm.type);
     if (searchForm.city) params.set('city', searchForm.city);
 
-    // Если выбран не "all", добавляем фильтр по типу листинга
     if (activeTab !== 'all') {
       params.set('listingType', activeTab);
     }
 
-    console.log('Redirect URL:', `/properties?${params.toString()}`);
     window.location.href = `/properties?${params.toString()}`;
   };
 
-  // Безопасный рендер карточки недвижимости
-  const renderPropertyCard = (property: Property) => {
-    if (!property || !property.id) {
+  // Максимально безопасный рендер карточки
+  const SafePropertyCard = ({ property }: { property: Property }) => {
+    // Проверяем каждое поле отдельно
+    if (!property || typeof property !== 'object') {
       console.warn('Invalid property object:', property);
       return null;
     }
 
+    const safeId = property.id ? String(property.id) : 'unknown';
+    const safeTitle = property.title ? String(property.title) : 'Название не указано';
+    const safeCity = property.city ? String(property.city) : 'Город не указан';
+    const safeCountry = property.country ? String(property.country) : 'Страна не указана';
+    const safeBedrooms = property.bedrooms && typeof property.bedrooms === 'number' ? property.bedrooms : 0;
+    const safeBathrooms = property.bathrooms && typeof property.bathrooms === 'number' ? property.bathrooms : 0;
+    const safeArea = property.area && typeof property.area === 'number' ? property.area : 0;
+    const safePrice = property.price && typeof property.price === 'number' ? property.price : 0;
+    const safeCurrency = property.currency ? String(property.currency) : 'USD';
+    const safeListingType = property.listingType === 'sale' ? 'Satılık' : 'Kiralık';
+    const safeSlug = property.slug ? String(property.slug) : safeId;
+
     const imageUrl = getStrapiMedia(property.coverImage?.url);
-    const title = String(property.title || 'Без названия');
-    const city = String(property.city || 'Город не указан');
-    const country = String(property.country || 'Страна не указана');
-    const bedrooms = Number(property.bedrooms) || 0;
-    const bathrooms = Number(property.bathrooms) || 0;
-    const area = Number(property.area) || 0;
-    const price = Number(property.price) || 0;
-    const currency = String(property.currency || 'USD');
-    const listingType = String(property.listingType) === 'sale' ? 'Satılık' : 'Kiralık';
-    const slug = String(property.slug || property.id);
 
     return (
-      <Link
-        key={`property-${property.id}`}
-        href={`/properties/${slug}`}
-        className="block group"
-      >
-        <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-          <div className="h-48 bg-gray-300 relative overflow-hidden">
-            {imageUrl && (
-              <Image
-                src={imageUrl}
-                alt={title}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-300"
-                unoptimized={imageUrl.includes('onrender.com')}
-              />
-            )}
-            <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded">
-              {listingType}
-            </div>
-          </div>
-          <div className="p-6">
-            <h3 className="text-xl font-semibold mb-2">
-              {title}
-            </h3>
-            <p className="text-gray-600 mb-4">
-              {city}, {country}
-            </p>
-            <div className="flex items-center text-sm text-gray-500 mb-4">
-              <span className="mr-4">🛏 {bedrooms} yatak</span>
-              <span className="mr-4">🚿 {bathrooms} banyo</span>
-              <span>📐 {area} m²</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-2xl font-bold text-blue-600">
-                {currency} {price.toLocaleString()}
-              </span>
-              <span className="text-blue-600 hover:text-blue-700 group-hover:translate-x-1 transition-transform">
-                Detayları Gör →
-              </span>
-            </div>
+      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+        <div className="h-48 bg-gray-300 relative overflow-hidden">
+          {imageUrl && (
+            <Image
+              src={imageUrl}
+              alt={safeTitle}
+              fill
+              className="object-cover"
+              unoptimized={imageUrl.includes('onrender.com')}
+            />
+          )}
+          <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded">
+            {safeListingType}
           </div>
         </div>
-      </Link>
+        <div className="p-6">
+          <h3 className="text-xl font-semibold mb-2">
+            {safeTitle}
+          </h3>
+          <p className="text-gray-600 mb-4">
+            {safeCity}, {safeCountry}
+          </p>
+          <div className="flex items-center text-sm text-gray-500 mb-4">
+            <span className="mr-4">🛏 {safeBedrooms} yatak</span>
+            <span className="mr-4">🚿 {safeBathrooms} banyo</span>
+            <span className="mr-4">📐 {safeArea} m²</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-2xl font-bold text-blue-600">
+              {safeCurrency} {safePrice.toLocaleString()}
+            </span>
+            <Link 
+              href={`/properties/${safeSlug}`}
+              className="text-blue-600 hover:text-blue-700"
+            >
+              Detayları Gör →
+            </Link>
+          </div>
+        </div>
+      </div>
     );
   };
 
   return (
-    <>
+    <div>
       {/* Hero Section with Search */}
       <section className="relative min-h-[600px] flex items-center justify-center">
-        {/* Background Image with Parallax */}
-        <div className="absolute inset-0 z-0 hero-parallax">
+        <div className="absolute inset-0 z-0">
           <Image
             src="/images/banner.webp"
             alt="Antalya skyline"
@@ -173,52 +181,50 @@ export default function Home() {
           <div className="absolute inset-0 bg-[#002E51]/70"></div>
         </div>
 
-        {/* Content */}
-        <div className="relative z-100 flex justify-center">
-          <div className="container px-4 py-4 text-center transform md:translate-y-[70%]">
-            <h1 className="text-5xl md:text-3xl font-bold text-white mb-4 animate-fade-in">
-              Silpagar Grup'a Hoşgeldiniz!
+        <div className="relative z-10 flex justify-center">
+          <div className="container px-4 py-4 text-center">
+            <h1 className="text-5xl md:text-3xl font-bold text-white mb-4">
+              Silpagar Grup&apos;a Hoşgeldiniz!
             </h1>
-            <p className="text-xl text-white mb-12 animate-fade-in animation-delay-200">
+            <p className="text-xl text-white mb-12">
               Hayallerinizdeki Evi Gerçeğe Dönüştürüyoruz!
             </p>
 
-            {/* Search Form */}
-            <div className="bg-white rounded-2xl p-6 max-w-6xl mx-auto shadow-2xl animate-slide-up animation-delay-400">
-              {/* Tabs */}
+            <div className="bg-white rounded-2xl p-6 max-w-6xl mx-auto shadow-2xl">
               <div className="flex gap-4 mb-6 justify-center">
                 <button
                   onClick={() => setActiveTab('all')}
-                  className={`px-6 py-2 rounded-lg font-medium transition ${activeTab === 'all'
-                    ? 'bg-gray-800 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                  className={`px-6 py-2 rounded-lg font-medium transition ${
+                    activeTab === 'all'
+                      ? 'bg-gray-800 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
                   Bütün Projeler
                 </button>
                 <button
                   onClick={() => setActiveTab('rent')}
-                  className={`px-6 py-2 rounded-lg font-medium transition ${activeTab === 'rent'
-                    ? 'bg-yellow-400 text-gray-900'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                  className={`px-6 py-2 rounded-lg font-medium transition ${
+                    activeTab === 'rent'
+                      ? 'bg-yellow-400 text-gray-900'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
                   Kiralık
                 </button>
                 <button
                   onClick={() => setActiveTab('sale')}
-                  className={`px-6 py-2 rounded-lg font-medium transition ${activeTab === 'sale'
-                    ? 'bg-yellow-400 text-gray-900'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                  className={`px-6 py-2 rounded-lg font-medium transition ${
+                    activeTab === 'sale'
+                      ? 'bg-yellow-400 text-gray-900'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
                   Satılık
                 </button>
               </div>
 
-              {/* Search Fields */}
               <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                {/* Proje Tipi */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     PROJE TİPİ
@@ -237,7 +243,6 @@ export default function Home() {
                   </select>
                 </div>
 
-                {/* Ülke */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     ÜLKE
@@ -251,7 +256,6 @@ export default function Home() {
                   </select>
                 </div>
 
-                {/* Şehir */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     ŞEHİR
@@ -261,16 +265,15 @@ export default function Home() {
                     onChange={(e) => setSearchForm({ ...searchForm, city: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   >
-                    <option value="">Sehir seçin</option>
+                    <option value="">Şehir seçin</option>
                     {cities.map((city, index) => (
-                      <option key={`city-${index}-${city}`} value={city}>
-                        {String(city)}
+                      <option key={`city-${index}`} value={city}>
+                        {city}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                {/* Oda Sayısı */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     ODA SAYISI
@@ -289,7 +292,6 @@ export default function Home() {
                   </select>
                 </div>
 
-                {/* Search Button */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1 invisible">
                     Ara
@@ -308,80 +310,43 @@ export default function Home() {
       </section>
 
       {/* Featured Properties Section */}
-      <section className="py-40">
+      <section className="py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">
             Öne Çıkan Projeler
           </h2>
+          
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              Hata: {error}
+            </div>
+          )}
           
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="text-xl">Projeler yükleniyor...</div>
             </div>
           ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {properties.filter(Boolean).map(renderPropertyCard)}
-              </div>
-
-              {properties.length === 0 && (
+            <div>
+              {properties.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {properties.map((property, index) => (
+                    <SafePropertyCard key={`property-${property.id || index}`} property={property} />
+                  ))}
+                </div>
+              ) : (
                 <p className="text-center text-gray-500">
                   Henüz proje eklenmemiş. Lütfen Strapi admin panelinden proje ekleyin.
                 </p>
               )}
-            </>
+            </div>
           )}
         </div>
       </section>
 
-      {/* Property Types Section */}
       <PropertyTypesSection />
-
-      {/* Cities Section */}
       <CitiesSection />
-
-      {/* Why Us Section with Form */}
       <WhyUsSection />
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes slide-up {
-          from {
-            opacity: 0;
-            transform: translateY(40px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out forwards;
-        }
-
-        .animate-slide-up {
-          animation: slide-up 0.8s ease-out forwards;
-        }
-
-        .animation-delay-200 {
-          animation-delay: 200ms;
-        }
-
-        .animation-delay-400 {
-          animation-delay: 400ms;
-        }
-      `}</style>
-    </>
+    </div>
   );
 }
