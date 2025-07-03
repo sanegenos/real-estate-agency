@@ -93,21 +93,27 @@ export default function Home() {
 
   // Безопасный рендер карточки недвижимости
   const renderPropertyCard = (property: Property) => {
+    if (!property || !property.id) {
+      console.warn('Invalid property object:', property);
+      return null;
+    }
+
     const imageUrl = getStrapiMedia(property.coverImage?.url);
-    const title = property.title || 'Без названия';
-    const city = property.city || 'Город не указан';
-    const country = property.country || 'Страна не указана';
+    const title = String(property.title || 'Без названия');
+    const city = String(property.city || 'Город не указан');
+    const country = String(property.country || 'Страна не указана');
     const bedrooms = Number(property.bedrooms) || 0;
     const bathrooms = Number(property.bathrooms) || 0;
     const area = Number(property.area) || 0;
     const price = Number(property.price) || 0;
-    const currency = property.currency || 'USD';
-    const listingType = property.listingType === 'sale' ? 'Satılık' : 'Kiralık';
+    const currency = String(property.currency || 'USD');
+    const listingType = String(property.listingType) === 'sale' ? 'Satılık' : 'Kiralık';
+    const slug = String(property.slug || property.id);
 
     return (
       <Link
-        key={property.id}
-        href={`/properties/${property.slug || property.id}`}
+        key={`property-${property.id}`}
+        href={`/properties/${slug}`}
         className="block group"
       >
         <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
@@ -256,8 +262,10 @@ export default function Home() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   >
                     <option value="">Sehir seçin</option>
-                    {cities.map((city) => (
-                      <option key={city} value={city}>{city}</option>
+                    {cities.map((city, index) => (
+                      <option key={`city-${index}-${city}`} value={city}>
+                        {String(city)}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -313,7 +321,7 @@ export default function Home() {
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {properties.map(renderPropertyCard)}
+                {properties.filter(Boolean).map(renderPropertyCard)}
               </div>
 
               {properties.length === 0 && (
@@ -345,22 +353,6 @@ export default function Home() {
             opacity: 1;
             transform: translateY(0);
           }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out forwards;
-        }
-
-        .animate-slide-up {
-          animation: slide-up 0.8s ease-out forwards;
-        }
-
-        .animation-delay-200 {
-          animation-delay: 200ms;
-        }
-
-        .animation-delay-400 {
-          animation-delay: 400ms;
         }
 
         @keyframes slide-up {

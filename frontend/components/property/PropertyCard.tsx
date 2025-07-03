@@ -9,21 +9,28 @@ interface PropertyCardProps {
 }
 
 export default function PropertyCard({ property }: PropertyCardProps) {
-  // Безопасное получение значений
+  // Проверяем валидность объекта property
+  if (!property || typeof property !== 'object' || !property.id) {
+    console.warn('Invalid property object received:', property);
+    return null;
+  }
+
+  // Безопасное получение значений с явным преобразованием к строкам/числам
   const imageUrl = getStrapiMedia(property.coverImage?.url);
-  const title = property.title || 'Без названия';
-  const city = property.city || 'Город не указан';
-  const country = property.country || 'Страна не указана';
-  const bedrooms = property.bedrooms || 0;
-  const bathrooms = property.bathrooms || 0;
-  const area = property.area || 0;
-  const price = property.price || 0;
-  const currency = property.currency || 'USD';
-  const listingType = property.listingType === 'sale' ? 'Satılık' : 'Kiralık';
+  const title = String(property.title || 'Без названия');
+  const city = String(property.city || 'Город не указан');
+  const country = String(property.country || 'Страна не указана');
+  const bedrooms = Number(property.bedrooms) || 0;
+  const bathrooms = Number(property.bathrooms) || 0;
+  const area = Number(property.area) || 0;
+  const price = Number(property.price) || 0;
+  const currency = String(property.currency || 'USD');
+  const listingType = String(property.listingType) === 'sale' ? 'Satılık' : 'Kiralık';
+  const slug = String(property.slug || property.id);
 
   return (
     <Link
-      href={`/properties/${property.slug}`}
+      href={`/properties/${slug}`}
       className="block group"
     >
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">

@@ -172,7 +172,36 @@ export async function getFeaturedProperties(limit: number = 6) {
   };
 
   try {
-    return await fetchAPI<StrapiResponse<Property[]>>('/properties', queryParams);
+    const response = await fetchAPI<StrapiResponse<Property[]>>('/properties', queryParams);
+    
+    // Проверяем и очищаем данные
+    if (!response?.data || !Array.isArray(response.data)) {
+      console.warn('Invalid featured properties response:', response);
+      return { data: [], meta: {} };
+    }
+
+    // Фильтруем и очищаем каждый объект недвижимости
+    const cleanedProperties = response.data
+      .filter(property => property && typeof property === 'object' && property.id)
+      .map(property => ({
+        ...property,
+        id: property.id,
+        title: String(property.title || ''),
+        city: String(property.city || ''),
+        country: String(property.country || ''),
+        bedrooms: Number(property.bedrooms) || 0,
+        bathrooms: Number(property.bathrooms) || 0,
+        area: Number(property.area) || 0,
+        price: Number(property.price) || 0,
+        currency: String(property.currency || 'USD'),
+        listingType: String(property.listingType || 'sale'),
+        slug: String(property.slug || property.id),
+      }));
+
+    return {
+      data: cleanedProperties,
+      meta: response.meta || {}
+    };
   } catch (error) {
     console.error('Error fetching featured properties:', error);
     return { data: [], meta: {} };
