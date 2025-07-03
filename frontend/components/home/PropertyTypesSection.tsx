@@ -68,10 +68,11 @@ export default function PropertyTypesSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {propertyTypes.map((type) => (
             <Link
-              key={`property-type-${type.id}`}
+              key={type.id}
               href={`/properties?type=${type.searchType}`}
               className="group relative h-80 rounded-lg overflow-hidden"
             >
+              {/* Background Image */}
               <Image
                 src={type.image}
                 alt={type.title}
@@ -79,14 +80,17 @@ export default function PropertyTypesSection() {
                 className="object-cover group-hover:scale-110 transition-transform duration-300"
               />
               
+              {/* Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               
+              {/* Content */}
               <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                <h3 className="text-2xl font-bold mb-1">{String(type.title)}</h3>
-                <p className="text-sm mb-2 opacity-90">{String(type.description)}</p>
+                <h3 className="text-2xl font-bold mb-1">{type.title}</h3>
+                <p className="text-sm mb-2 opacity-90">{type.description}</p>
                 <p className="text-sm opacity-75">{type.count} Proje</p>
               </div>
               
+              {/* Hover Arrow */}
               <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white">
                   →
@@ -96,6 +100,7 @@ export default function PropertyTypesSection() {
           ))}
         </div>
 
+        {/* View All Button */}
         <div className="text-center mt-12">
           <Link
             href="/properties"

@@ -18,6 +18,25 @@ interface FormData {
   message: string;
 }
 
+// Функция для безопасного извлечения текста из Strapi blocks
+function extractTextFromBlocks(blocks: any): string {
+  if (!blocks || !Array.isArray(blocks)) {
+    return '';
+  }
+  
+  return blocks
+    .map(block => {
+      if (block && Array.isArray(block.children)) {
+        return block.children
+          .map((child: any) => child?.text || '')
+          .join(' ');
+      }
+      return '';
+    })
+    .filter(Boolean)
+    .join('\n');
+}
+
 export default function AgentSection({ agent, propertyTitle }: AgentSectionProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
@@ -34,7 +53,6 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
     setSubmitStatus(null);
 
     try {
-      // Here you would send the form data to your backend or Formspree
       console.log('Form data:', {
         ...data,
         property: propertyTitle,
@@ -42,7 +60,6 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
         agentEmail: agent.email,
       });
       
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       setSubmitStatus('success');
@@ -56,6 +73,11 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
   };
 
   const agentPhotoUrl = getStrapiMedia(agent.photo?.url);
+  
+  // Безопасно извлекаем текст из bio
+  const agentBio = typeof agent.bio === 'string' 
+    ? agent.bio 
+    : extractTextFromBlocks(agent.bio);
 
   return (
     <div>
@@ -78,7 +100,7 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
                 ) : (
                   <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
                     <span className="text-3xl text-gray-500">
-                      {agent.firstName[0]}{agent.lastName[0]}
+                      {String(agent.firstName || '')[0]}{String(agent.lastName || '')[0]}
                     </span>
                   </div>
                 )}
@@ -87,11 +109,11 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
               {/* Agent Details */}
               <div className="flex-grow">
                 <h3 className="text-xl font-semibold mb-1">
-                  {agent.firstName} {agent.lastName}
+                  {String(agent.firstName || '')} {String(agent.lastName || '')}
                 </h3>
                 <p className="text-gray-600 mb-3">Gayrimenkul Danışmanı</p>
                 {agent.city && (
-                  <p className="text-sm text-gray-500">{agent.city}</p>
+                  <p className="text-sm text-gray-500">{String(agent.city)}</p>
                 )}
               </div>
             </div>
@@ -105,7 +127,7 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
                 <svg className="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                {agent.phone}
+                {String(agent.phone || '')}
               </a>
               
               <a 
@@ -115,7 +137,7 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
                 <svg className="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                {agent.email}
+                {String(agent.email || '')}
               </a>
             </div>
 
@@ -124,7 +146,7 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
               <div className="flex space-x-3 pt-4 border-t">
                 {agent.facebook && (
                   <a
-                    href={agent.facebook}
+                    href={String(agent.facebook)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-blue-100 transition"
@@ -136,7 +158,7 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
                 )}
                 {agent.instagram && (
                   <a
-                    href={agent.instagram}
+                    href={String(agent.instagram)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-pink-100 transition"
@@ -148,7 +170,7 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
                 )}
                 {agent.linkedin && (
                   <a
-                    href={agent.linkedin}
+                    href={String(agent.linkedin)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-blue-100 transition"
@@ -160,7 +182,7 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
                 )}
                 {agent.twitter && (
                   <a
-                    href={agent.twitter}
+                    href={String(agent.twitter)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-blue-100 transition"
@@ -174,14 +196,17 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
             )}
 
             {/* Bio */}
-            {agent.bio && (
+            {agentBio && (
               <div className="mt-6 pt-4 border-t">
-                <p className="text-gray-600 text-sm">{agent.bio}</p>
+                <div className="text-gray-600 text-sm whitespace-pre-line">
+                  {agentBio}
+                </div>
               </div>
             )}
           </div>
+          
           {/* Contact Form */}
-          <div className="bg-white rounded-lg p-6 shadow-md">
+          <div className="bg-white rounded-lg p-6 shadow-md mt-6">
             <h3 className="text-xl font-semibold mb-4">Bilgi Talep Formu</h3>
             <p className="text-gray-600 mb-6">
               Bu proje hakkında detaylı bilgi almak için formu doldurun.
@@ -267,4 +292,4 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
       </div>
     </div>
   );
-} 
+}

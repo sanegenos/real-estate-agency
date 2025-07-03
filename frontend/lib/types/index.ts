@@ -108,7 +108,7 @@ export interface Agent {
   email: string;
   phone: string;
   city: string;
-  bio?: string;
+  bio?: string | any; // Может быть строкой или массивом Strapi blocks
   photo?: Image;
   
   // Social links
