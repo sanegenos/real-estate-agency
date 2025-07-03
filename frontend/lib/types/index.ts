@@ -38,10 +38,10 @@ export interface Property {
   slug: string;
   description: string;
   price: number;
-  currency: 'USD' | 'EUR' | 'TRY';
+  currency: string; // Изменено с union type на string
   type: PropertyType;
   project_status: PropertyStatus;
-  listingType: 'sale' | 'rent';
+  listingType: string; // Изменено с union type на string
   
   // Location
   address: string;
@@ -86,6 +86,8 @@ export interface Property {
 
 export type PropertyType = 'villa' | 'apartment' | 'house' | 'penthouse' | 'townhouse' | 'land';
 export type PropertyStatus = 'ready' | 'under-construction';
+export type CurrencyType = 'USD' | 'EUR' | 'TRY';
+export type ListingType = 'sale' | 'rent';
 
 export interface Feature {
   id: number;
@@ -136,7 +138,7 @@ export interface StrapiResponse<T> {
 export interface FilterParams {
   city?: string;
   type?: PropertyType;
-  listingType?: 'sale' | 'rent';
+  listingType?: string; // Изменено с union type на string
   priceMin?: number;
   priceMax?: number;
   bedroomsMin?: number;
