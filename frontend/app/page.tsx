@@ -362,12 +362,6 @@ export default function Home() {
         .animation-delay-400 {
           animation-delay: 400ms;
         }
-      `}</style>
-    </>
-  );
-});
-          }
-        }
 
         @keyframes slide-up {
           from {
