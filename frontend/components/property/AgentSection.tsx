@@ -267,4 +267,4 @@ export default function AgentSection({ agent, propertyTitle }: AgentSectionProps
       </div>
     </div>
   );
-}
+} 
