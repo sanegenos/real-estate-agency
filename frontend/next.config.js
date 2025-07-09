@@ -23,7 +23,8 @@ const nextConfig = {
       },
     ],
     // Отключаем оптимизацию для внешних изображений (опционально)
-    unoptimized: process.env.NODE_ENV === 'production',
+    // unoptimized: process.env.NODE_ENV === 'production',
+    unoptimized: true,
   },
   // Включаем поддержку SVG как компонентов
   webpack(config) {
