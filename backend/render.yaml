@@ -1,27 +1,36 @@
+# render.yaml
+
+# persistent диск для хранения uploaded-файлов
 disks:
   - name: uploads-data
     size: 5Gi
 
+# база данных PostgreSQL
 databases:
   - name: strapi-db
     databaseName: strapi
     user: strapi
     plan: free
 
+# сервис Strapi
 services:
   - type: web
     name: strapi
-    root: backend
+    # корневая папка, в которой расположен package.json Strapi
+    root: src/backend
+    # используем созданный диск
     disk: uploads-data
-    diskMountPath: /home/render/project/backend/public/uploads
+    # монтируем его в папку public/uploads внутри src/backend
+    diskMountPath: /opt/render/project/src/backend/public/uploads
     env: node
     plan: free
+    # команды будут выполняться внутри src/backend
     buildCommand: npm install && npm run build
     startCommand: npm start
     healthCheckPath: /_health
     envVars:
       - key: NODE_VERSION
-        value: 18.17.0
+        value: "18.17.0"
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
