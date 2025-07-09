@@ -1,49 +1,58 @@
-# render.yaml
+# render.yaml (в корне репо)
 
-# persistent диск для хранения uploaded-файлов
+# 1) Persistent диск для uploaded-файлов
 disks:
   - name: uploads-data
     size: 5Gi
 
-# база данных PostgreSQL
+# 2) PostgreSQL база
 databases:
   - name: strapi-db
     databaseName: strapi
     user: strapi
     plan: free
 
-# сервис Strapi
+# 3) Сервис Strapi
 services:
   - type: web
     name: strapi
-    # корневая папка, в которой расположен package.json Strapi
+    # указываем папку с package.json Strapi
     root: backend
-    # используем созданный диск
+    # подключаем диск именно в папку public/uploads внутри backend
     disk: uploads-data
-    # монтируем его в папку public/uploads внутри src/backend
     diskMountPath: /opt/render/project/backend/public/uploads
     env: node
     plan: free
-    # команды будут выполняться внутри src/backend
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+
+    # Сборка и запуск — переходим в backend перед командой
+    buildCommand: |
+      cd backend
+      npm install
+      npm run build
+    startCommand: |
+      cd backend
+      npm start
+
     healthCheckPath: /_health
+
     envVars:
       - key: NODE_VERSION
         value: "18.17.0"
       - key: NODE_ENV
         value: production
+
+      # Подключение Postgres
+      - key: DATABASE_CLIENT
+        value: postgres
       - key: DATABASE_URL
         fromDatabase:
           name: strapi-db
           property: connectionString
+
+      # Переменные для Cloudinary
       - key: CLOUDINARY_NAME
         sync: false
       - key: CLOUDINARY_KEY
         sync: false
       - key: CLOUDINARY_SECRET
         sync: false
-      - key: DATABASE_CLIENT
-        value: postgres
-
-  
