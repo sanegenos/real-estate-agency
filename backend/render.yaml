@@ -1,3 +1,7 @@
+disks:
+  - name: uploads-data
+    size: 5Gi
+
 databases:
   - name: strapi-db
     databaseName: strapi
@@ -8,6 +12,8 @@ services:
   - type: web
     name: strapi
     root: backend
+    disk: uploads-data
+    diskMountPath: /home/render/project/backend/public/uploads
     env: node
     plan: free
     buildCommand: npm install && npm run build
