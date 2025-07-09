@@ -1,7 +1,22 @@
 module.exports = [
   'strapi::logger',
   'strapi::errors',
-  'strapi::security',
+  {
+    // заменяем простую строку на объект с конфигом CSP
+    name: 'strapi::security',
+    config: {
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          'connect-src': ["'self'", 'https:'],
+          'img-src':     ["'self'", 'data:', 'blob:', 'res.cloudinary.com'],
+          'media-src':   ["'self'", 'data:', 'blob:', 'res.cloudinary.com'],
+          // остальное оставляем по умолчанию/или расширяем по необходимости
+          upgradeInsecureRequests: null,
+        },
+      },
+    },
+  },
   {
     name: 'strapi::cors',
     config: {
