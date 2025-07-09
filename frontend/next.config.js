@@ -11,10 +11,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
+        port: '',
+        // разрешаем ВСЕ пути внутри Cloudinary
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'real-estate-agency-pcuk.onrender.com',
+        port: '',
         pathname: '/uploads/**',
       },
     ],
