@@ -14,7 +14,7 @@ export default ({ env }) => ({
           api_secret: env('CLOUDINARY_SECRET'),
         },
         actionOptions: {
-          upload:   {},
+          upload:   { folder: 'real-estate' },
           delete:   {},
         },
       },
