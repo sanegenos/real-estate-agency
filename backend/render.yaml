@@ -17,11 +17,11 @@ services:
   - type: web
     name: strapi
     # корневая папка, в которой расположен package.json Strapi
-    root: src/backend
+    root: backend
     # используем созданный диск
     disk: uploads-data
     # монтируем его в папку public/uploads внутри src/backend
-    diskMountPath: /opt/render/project/src/backend/public/uploads
+    diskMountPath: /opt/render/project/backend/public/uploads
     env: node
     plan: free
     # команды будут выполняться внутри src/backend
