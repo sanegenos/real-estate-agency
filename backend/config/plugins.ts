@@ -1,5 +1,4 @@
 // backend/config/plugins.ts
-
 export default ({ env }) => ({
   'users-permissions': {
     config: {
