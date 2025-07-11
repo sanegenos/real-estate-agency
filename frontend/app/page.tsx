@@ -337,11 +337,11 @@ export default function Home() {
       {/* Property Types Section */}
       <PropertyTypesSection />
 
-      {/* Cities Section */}
-      <CitiesSection />
-
       {/* Why Us Section with Form */}
       <WhyUsSection />
+
+      {/* Cities Section */}
+      <CitiesSection />
 
       <style jsx>{`
         @keyframes fade-in {

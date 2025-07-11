@@ -24,13 +24,13 @@ export default function Header() {
                 <div className="hidden md:flex items-center justify-center gap-6">
                     {/* Logo */}
                     <Link href="/" className="flex-shrink-0">
-                        <div className="relative w-20 h-20">
+                        <div className="relative w-32 h-32">
                             <Image
-                                src="/images/logo.webp"
+                                src="/images/logo.png"
                                 alt="Silpagar Grup"
                                 fill
                                 sizes="(max-width: 768px) 120px, 128px"
-                                className="object-contain"
+                                className="object-contain shadow-[0px_6px_10px_-5px_rgba(0,0,0,0.5)] rounded-full"
                             />
                         </div>
                     </Link>
@@ -43,9 +43,10 @@ export default function Header() {
                                 <Link
                                     key={item.href}
                                     href={item.href}
-                                    className={`px-4 py-2 border rounded-md shadow-sm text-sm font-medium transition-all bg-white
-                                        hover:-translate-y-1 hover:shadow-md hover:bg-yellow-400
-                                        ${isActive ? 'text-white font-semibold bg-yellow-400' : 'text-gray-800'}
+                                    className={`
+                                        px-4 py-2 border-black rounded-xl shadow-[0px_6px_10px_-5px_rgba(0,0,0,0.5)] text-sm font-semibold fill-black text-black text-shadow-lg
+                                        transition-all bg-[#F6F6F6] border-[1px]
+                                        hover:-translate-y-1 hover:shadow-md hover:bg-yellow-400 hover:text-black
                                     `}
                                 >
                                     {item.title}
