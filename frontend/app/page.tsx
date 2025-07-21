@@ -10,7 +10,6 @@ import WhyUsSection from '@/components/home/WhyUsSection';
 import PropertyTypesSection from '@/components/home/PropertyTypesSection';
 import CitiesSection from '@/components/home/CitiesSection';
 import { Property } from '@/lib/types';
-import PriceFilter from "@/components/common/PriceFilter";
 
 export default function Home() {
   const [properties, setProperties] = useState<Property[]>([]);
