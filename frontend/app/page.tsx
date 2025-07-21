@@ -10,11 +10,33 @@ import WhyUsSection from '@/components/home/WhyUsSection';
 import PropertyTypesSection from '@/components/home/PropertyTypesSection';
 import CitiesSection from '@/components/home/CitiesSection';
 import { Property } from '@/lib/types';
+import PriceFilter from "@/components/common/PriceFilter";
 
 export default function Home() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPrice, setSelectedPrice] = useState<string>("");
+
+  const PRICE_OPTIONS = [
+    { label: "Herhangi biri", value: "" },
+    { label: "$1,000.00", value: 1000 },
+    { label: "$2,000.00", value: 2000 },
+    { label: "$3,000.00", value: 3000 },
+    { label: "$4,000.00", value: 4000 },
+    { label: "$5,000.00", value: 5000 },
+    { label: "$7,500.00", value: 7500 },
+    { label: "$15,000.00", value: 15000 },
+    { label: "$20,000.00", value: 20000 },
+    { label: "$25,000.00", value: 25000 },
+    { label: "$30,000.00", value: 30000 },
+    { label: "$40,000.00", value: 40000 },
+    { label: "$50,000.00", value: 50000 },
+    { label: "$75,000.00", value: 75000 },
+    { label: "$100,000.00", value: 100000 },
+    { label: "$150,000.00", value: 150000 },
+    { label: "$100,000,000.00", value: 100000000 },
+  ];
 
   // Form state
   const [activeTab, setActiveTab] = useState<'all' | 'sale' | 'rent'>('all');
@@ -190,7 +212,7 @@ export default function Home() {
                 <button
                   onClick={() => setActiveTab('all')}
                   className={`px-6 py-2 rounded-lg font-medium transition ${activeTab === 'all'
-                    ? 'bg-gray-800 text-white'
+                    ? 'bg-yellow-400 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
@@ -199,7 +221,7 @@ export default function Home() {
                 <button
                   onClick={() => setActiveTab('rent')}
                   className={`px-6 py-2 rounded-lg font-medium transition ${activeTab === 'rent'
-                    ? 'bg-yellow-400 text-gray-900'
+                    ? 'bg-yellow-400 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
@@ -208,7 +230,7 @@ export default function Home() {
                 <button
                   onClick={() => setActiveTab('sale')}
                   className={`px-6 py-2 rounded-lg font-medium transition ${activeTab === 'sale'
-                    ? 'bg-yellow-400 text-gray-900'
+                    ? 'bg-yellow-400 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
@@ -288,6 +310,19 @@ export default function Home() {
                     <option value="5">5+1</option>
                   </select>
                 </div>
+
+                {/* Prices */}
+                <select
+                  className="border rounded-lg p-2 text-sm"
+                  value={selectedPrice}
+                  onChange={e => setSelectedPrice(e.target.value)}
+                >
+                  {PRICE_OPTIONS.map(opt => (
+                    <option key={opt.value || "any"} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
 
                 {/* Search Button */}
                 <div>
