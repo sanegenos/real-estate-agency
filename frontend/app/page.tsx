@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { getFeaturedProperties, getCities } from '@/lib/api/properties';
 import { getStrapiMedia } from '@/lib/api/client';
 import Link from 'next/link';
@@ -12,6 +13,7 @@ import CitiesSection from '@/components/home/CitiesSection';
 import { Property } from '@/lib/types';
 
 export default function Home() {
+  const router = useRouter();
   const [properties, setProperties] = useState<Property[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -109,7 +111,7 @@ export default function Home() {
     }
 
     console.log('Redirect URL:', `/properties?${params.toString()}`);
-    window.location.href = `/properties?${params.toString()}`;
+    router.push(`/properties?${params.toString()}`);
   };
 
   // Безопасный рендер карточки недвижимости
