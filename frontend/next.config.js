@@ -22,7 +22,6 @@ const nextConfig = {
         pathname: '/uploads/**',
       },
     ],
-    // Отключаем оптимизацию для внешних изображений только в dev режиме
     unoptimized: process.env.NODE_ENV !== 'production',
   },
   // Включаем поддержку SVG как компонентов
