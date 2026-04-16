@@ -6,8 +6,8 @@ Monorepo with:
 
 ## Project structure
 
-- `/home/runner/work/real-estate-agency/real-estate-agency/frontend` — frontend app
-- `/home/runner/work/real-estate-agency/real-estate-agency/backend` — Strapi backend
+- `./frontend` — frontend app
+- `./backend` — Strapi backend
 
 ## Requirements
 
@@ -16,7 +16,7 @@ Monorepo with:
 
 ## Environment variables
 
-### Frontend (`/home/runner/work/real-estate-agency/real-estate-agency/frontend/.env.local`)
+### Frontend (`frontend/.env.local`)
 
 ```env
 NEXT_PUBLIC_STRAPI_URL=http://localhost:1337
@@ -24,14 +24,14 @@ NEXT_PUBLIC_STRAPI_URL=http://localhost:1337
 
 ### Backend
 
-Use `/home/runner/work/real-estate-agency/real-estate-agency/backend/.env.example` as a base and create `.env`.
+Use `backend/.env.example` as a base and create `.env`.
 
 ## Run locally
 
 ### 1) Backend (Strapi)
 
 ```bash
-cd /home/runner/work/real-estate-agency/real-estate-agency/backend
+cd backend
 npm ci
 npm run develop
 ```
@@ -41,7 +41,7 @@ Backend: `http://localhost:1337`
 ### 2) Frontend (Next.js)
 
 ```bash
-cd /home/runner/work/real-estate-agency/real-estate-agency/frontend
+cd frontend
 npm ci
 npm run dev
 ```
@@ -51,7 +51,7 @@ Frontend: `http://localhost:3000`
 ## Production build
 
 ```bash
-cd /home/runner/work/real-estate-agency/real-estate-agency/frontend
+cd frontend
 npm run build
 npm run start
 ```
@@ -60,4 +60,4 @@ npm run start
 
 - Frontend navigation uses Next.js router (`useRouter().push`) for SPA behavior.
 - Media URL generation and API access use unified variable: `NEXT_PUBLIC_STRAPI_URL`.
-- Types are consolidated in `/home/runner/work/real-estate-agency/real-estate-agency/frontend/lib/types/index.ts` (Strapi v5).
+- Types are consolidated in `frontend/lib/types/index.ts` (Strapi v5).

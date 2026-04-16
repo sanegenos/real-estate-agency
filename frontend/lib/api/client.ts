@@ -1,7 +1,8 @@
 import axios from 'axios';
 import qs from 'qs';
 
-const strapiUrl = (process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337').replace(/\/$/, '');
+const rawStrapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+const strapiUrl = rawStrapiUrl.replace(/\/$/, '');
 
 export const api = axios.create({
   baseURL: `${strapiUrl}/api`,
