@@ -135,6 +135,16 @@ export interface StrapiResponse<T> {
   };
 }
 
+export interface StrapiError {
+  data: null;
+  error: {
+    status: number;
+    name: string;
+    message: string;
+    details: unknown;
+  };
+}
+
 export interface FilterParams {
   city?: string;
   type?: PropertyType;
